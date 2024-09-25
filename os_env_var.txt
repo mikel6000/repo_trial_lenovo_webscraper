@@ -1,0 +1,26 @@
+#to look for a specific variable
+echo %VARIABLE_NAME%
+
+#to set a permanent variable
+setx VARIABLE_NAME "value"
+
+#if you want to set a system-wide environment variable (accessible to all users), you will need to run the Command Prompt as an administrator
+setx VARIABLE_NAME "value" /M
+
+#delete a permanent environment variable that you created with setx
+reg delete "HKCU\Environment" /F /v VARIABLE_NAME
+
+#set a temporary variable using the CMD prompt
+set MY_APP_USERNAME=your_username
+set MY_APP_PASSWORD=your_password
+
+#to delete the variables
+setx MY_APP_USERNAME ""
+setx MY_APP_PASSWORD ""
+
+#to remove
+set MY_APP_USERNAME=
+set MY_APP_PASSWORD=
+
+#in powershell promt, to check if vscode has the environment variable
+echo $env:var_username
