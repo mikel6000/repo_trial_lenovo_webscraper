@@ -18,6 +18,14 @@ chrome_options.add_argument("--incognito")
 # chrome_options.add_argument('--ignore-certificate-errors')
 # chrome_options.add_argument('--ignore-ssl-errors')
 
+# options = webdriver.ChromeOptions()
+# options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36")
+# options.add_argument("--incognito")
+# options.add_argument('--log-level=3')
+# options.add_experimental_option("excludeSwitches", ["enable-logging"])
+# options.add_argument('--ignore-certificate-errors')
+# options.add_argument('--ignore-ssl-errors')
+
 # Initialize the WebDriver
 service = Service(executable_path="chromedriver.exe")
 driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -33,3 +41,4 @@ driver.find_element(By.ID, 'loginsub').click()
 # Wait for a few seconds to observe the result
 time.sleep(5)
 driver.quit()
+print("Process Complete")
