@@ -53,7 +53,7 @@ print(f'{version}{version_field}')
 
 execution_type = driver.find_element(By.XPATH, '//*[@id="basicdiv"]/table/tbody/tr[3]/td[5]').text
 execution_type_field = driver.find_element(By.XPATH, '//*[@id="caseViewForm_caseBO_caseType"]').get_attribute("value")
-print(f'{execution_type}:{execution_type_field}')
+print(f'{execution_type}{execution_type_field}')
 
 
 #retrieving form but the inputs are not included
