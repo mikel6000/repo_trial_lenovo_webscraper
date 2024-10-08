@@ -1,0 +1,20 @@
+Case ID
+Case type
+Case name
+Version
+Keywords
+Auto type
+Workloading
+Priority
+Creator
+Category folder
+Execution Type
+Status
+OS
+Phase
+Owner
+Objective
+Release notes
+Type matrix
+Case tools
+Attachments
