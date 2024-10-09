@@ -27,4 +27,3 @@ Case ID,Case type,Case name,Version,Keywords,Auto type,Workloading,Priority,Crea
 5421PA,SW,W7:LenovoPowerENGAGE function test 5421PA,1.2,none,-100,240,,shaun.casantusan@awsys-i.com,ROOT: Application team: Preload application compatibility - 1542PA,,Active,,"SIT,FVT",vthangavel,,,,Matrix
 5652PA,SW,W7:Auto Screen Utility test on SIT 5652PA,1.0.1,none,-100,480,,timothy.roasa@awsys-i.com,ROOT: Application team: Preload application compatibility - 1542PA,,Active,,SIT,vthangavel,,,,Matrix
 5669PA,SW,All: PC Game compatibility check 5669PA,1.1,none,-100,480,,shaun.casantusan@awsys-i.com,ROOT: PC game compatibility check,,Active,,SIT,vthangavel,,,,Matrix
-5651PA,SW,W7:Screen rotation Utility function check on FVT 5651PA,1.2.1,none,-100,480,,timothy.roasa@awsys-i.com,ROOT:W7:Screen rotation Utility function check on FVT,,Active,,FVT,tmitsuhashi,,,,Matrix
