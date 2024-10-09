@@ -1,4 +1,4 @@
-#Version2 : Static Header, acts like a template. Only retrieves data from the 'field' element
+#Static Header, acts like a template. Only retrieves data from the 'field' element
 #note: before running this file you need to create variables in the os for the login credentials
 
 from selenium import webdriver
