@@ -1,4 +1,5 @@
-#Semi official
+# Script for collecting data on TDMS website
+# Note: before running this file you need to create variables in the os for the login credentials
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -18,11 +19,12 @@ password = os.getenv('zlen_password')
 chrome_options = Options()
 
 # Basic options
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--verbose')
-chrome_options.add_argument('--disable-gpu')
-chrome_options.add_argument('--disable-software-rasterizer')
+# chrome_options.add_argument('--no-sandbox')
+# chrome_options.add_argument('--verbose')
+# chrome_options.add_argument('--disable-gpu')
+# chrome_options.add_argument('--disable-software-rasterizer')
 chrome_options.add_argument('--incognito')
+# chrome_options.add_argument("--headless=old")
 
 
 # Initialize the WebDriver
@@ -44,7 +46,7 @@ EC.element_to_be_clickable((By.ID, 'menu_system_test'))
 
 # Specify the range of numbers for your IDs
 start_num = 3
-end_num = 10
+end_num = 20
 
 # Define the DataFrame with the specified headers
 df = pd.DataFrame(columns=[
@@ -84,28 +86,45 @@ for i in range(start_num, end_num + 1):
         print(f"Could not click icon with ID {element_id}: {e}")
         continue
 
-# List of XPaths to click (anchor folder)
+###### Version 1
+# List of specific numbers to include in the xpaths
+# numbers = [6, 7, 8, 9, 11, 14, 16, 17, 18, 19, 21]
+
+# Generate the xpaths dynamically
+# xpaths_of_anchor_folders = [f"webfx-tree-object-{num}-anchor" for num in numbers]
+########## End of version 1
+
+###### Version 2
+# Define the range number for the AnchorFolder
+start = 6
+end = 20 #this number is not included
+
+# Define numbers to skip
+skip_numbers = {7, 8, 9, 10, 12, 13}
+
+# Generate the xpaths dynamically, skipping unwanted numbers
 xpaths_of_anchor_folders = [
-    "webfx-tree-object-6-anchor",
-    "webfx-tree-object-7-anchor",
-    "webfx-tree-object-8-anchor",
-    "webfx-tree-object-9-anchor",
+    f"webfx-tree-object-{num}-anchor"
+    for num in range(start, end) if num not in skip_numbers
 ]
+######### End of version 2
 
 # Loop through each anchor folder and click TC-xpath
 for anchor_id in xpaths_of_anchor_folders:
     try:
-        # anchor_folder = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, anchor_xpath)))
         anchor_folder = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID,anchor_id)))
         ActionChains(driver).move_to_element(anchor_folder).perform()
         anchor_folder.click()
 
-        # List of TC-XPaths within the clicked anchor folder
+        # Get the number of test case rows present
+        row_elements = driver.find_elements(By.XPATH, '//*[@id="caseList"]/tbody/tr')
+        num_rows = len(row_elements)
+
+        print(f"Anchor folder '{anchor_id}' has {num_rows} test case(s).")
+
+        # List of TC-XPaths based on the actual number of rows
         xpaths_of_test_cases = [
-            '//*[@id="caseList"]/tbody/tr[1]/td[1]/a',
-            '//*[@id="caseList"]/tbody/tr[2]/td[1]/a',
-            '//*[@id="caseList"]/tbody/tr[3]/td[1]/a',
-            # Add more XPaths as necessary
+            f'//*[@id="caseList"]/tbody/tr[{i}]/td[1]/a' for i in range(1, num_rows + 1)
         ]
 
         # Create a temporary DataFrame to hold new rows
@@ -119,12 +138,6 @@ for anchor_id in xpaths_of_anchor_folders:
                 test_case_element.click()
 
                 # Function to get data or return 'NULL'
-                # def get_value(xpath):
-                #     try:
-                #         return WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, xpath))).get_attribute('value')
-                #     except Exception:
-                #         return 'NULL'
-                    
                 def get_value(xpath):
                     try:
                         element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, xpath)))
@@ -144,7 +157,25 @@ for anchor_id in xpaths_of_anchor_folders:
                     except Exception:
                         print(f"Could not retrieve text from {xpath}: Returning 'NULL'")
                         return 'NULL'
+                    
+                def get_option_values(select_xpath):
+                    try:
+                        # Wait for the select element to be visible
+                        select_element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, select_xpath)))
+        
+                        # Find all option elements within the select element
+                        option_elements = select_element.find_elements(By.TAG_NAME, "option")
 
+                        # Retrieve the value of each option
+                        #option_values = [option.get_attribute('value') for option in option_elements]
+                        option_values = [option.text for option in option_elements]
+
+                        # return option_values if option_values else ['NULL']
+                        return ', '.join(option_values) if option_values else 'NULL'
+                    except Exception as e:
+                        print(f"Could not retrieve option values from {select_xpath}: {e}")
+                        return 'NULL'
+                    
                 # Collect data
                 case_id = get_value('//*[@id="caseViewForm_caseBO_caseAlias"]')
                 case_type = get_value('//*[@id="caseViewForm_caseBO_caseClassName"]')
@@ -158,12 +189,12 @@ for anchor_id in xpaths_of_anchor_folders:
                 category_folder = get_value('//*[@id="caseViewForm_caseBO_categoryName"]')
                 execution_type = get_value('//*[@id="caseViewForm_caseBO_caseType"]')
                 status = get_value('//*[@id="caseViewForm_caseBO_isactive"]')
-                os_value = get_value('//*[@id="caseViewForm_osList"]')
+                os_value = get_option_values('//*[@id="caseViewForm_osList"]')
                 phase = get_value('//*[@id="caseViewForm_caseBO_selectedTags"]')
                 owner = get_value('//*[@id="caseViewForm_caseBO_owner"]')
-                objective = get_value('//*[@id="objectiveDiv"]')
+                objective = get_text('//*[@id="objectiveDiv"]')
                 release_notes = get_value('//*[@id="descriptionDiv"]')
-                type_matrix = get_text('//*[@id="caseMatrix"]')
+                type_matrix = get_option_values('//*[@id="caseMatrix"]')
                 case_tools = get_value('//*[@id="caseTool"]')
 
                 # Create a dictionary to hold the data
@@ -200,6 +231,7 @@ for anchor_id in xpaths_of_anchor_folders:
 
         # Concatenate the temporary DataFrame to the main DataFrame
         df = pd.concat([df, temp_df], ignore_index=True)
+        #print(f"Processed anchor folder '{anchor_id}' with {num_rows} test case(s).")
 
     except Exception as e:
         print(f"Could not click the anchor folder with XPath {anchor_id}: {e}")
@@ -207,8 +239,18 @@ for anchor_id in xpaths_of_anchor_folders:
 
 # Display or save the DataFrame
 print(df)
+
 # Save to a CSV file
-df.to_csv('output.csv', index=False)
+file_path = 'output.csv'
+#df.to_csv('output.csv', index=False)
+
+# Check if the file already exists
+if os.path.exists(file_path):
+    # If the file exists, append without header
+    df.to_csv(file_path, mode='a', index=False, header=False)
+else:
+    # If the file does not exist, create it with header
+    df.to_csv(file_path, mode='w', index=False, header=True)
 
 # Close the driver when done
 time.sleep(5)
