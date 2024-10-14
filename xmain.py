@@ -12,8 +12,6 @@ import time
 import os
 import pandas as pd
 
-start_time_scriptrun = time.time()
-
 username = os.getenv('zlen_username')
 password = os.getenv('zlen_password')
 
@@ -21,12 +19,13 @@ password = os.getenv('zlen_password')
 chrome_options = Options()
 
 # Basic options
-chrome_options.add_argument('--incognito')
-# chrome_options.add_argument("--headless=old")
 # chrome_options.add_argument('--no-sandbox')
 # chrome_options.add_argument('--verbose')
 # chrome_options.add_argument('--disable-gpu')
 # chrome_options.add_argument('--disable-software-rasterizer')
+chrome_options.add_argument('--incognito')
+# chrome_options.add_argument("--headless=old")
+
 
 # Initialize the WebDriver
 driver_path = 'C:/Users/michaeljohn.roguel/Documents/GitHub/repo_trial_lenovo_webscraper/chromedriver.exe'
@@ -40,24 +39,14 @@ driver.find_element(By.ID, 'username').send_keys(username)
 driver.find_element(By.ID, 'password').send_keys(password)
 driver.find_element(By.ID, 'loginsub').click()
 driver.refresh()
+#driver.find_element(By.ID, 'menu_system_test').click() # Navigate to the Test case DB
 WebDriverWait(driver, 10).until(
 EC.element_to_be_clickable((By.ID, 'menu_system_test'))
 ).click()
 
-# Specify the range number for the PlusIcons
-"""
-(1) for Android and Applications (3-209)
-(2) for Bios and Common (?-360)
-(3) for Mobile and MS Logo (?-452)
-(4) for Multimedia and Network (?-617)
-(5) for Option and Preload (?-678)
-(6) for Scenario, UX, and 00_Tools (?-702)
-"""
+# Specify the range of numbers for your IDs
 start_num = 3
-end_num = 16
-
-# Define numbers to skip
-skip_numbers_plus = {}
+end_num = 15
 
 # Define the DataFrame with the specified headers
 df = pd.DataFrame(columns=[
@@ -87,11 +76,6 @@ df = pd.DataFrame(columns=[
 for i in range(start_num, end_num + 1):
     element_id = f"webfx-tree-object-{i}-plus"
 
-# element_id = [
-#     f"webfx-tree-object-{i}-plus"
-#     for i in range(start_num, end_num + 1) if i not in skip_numbers_plus
-# ]
-
     try:
         icon = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, element_id)))
         ActionChains(driver).move_to_element(icon).perform()
@@ -111,17 +95,9 @@ for i in range(start_num, end_num + 1):
 ########## End of version 1
 
 ###### Version 2
-# Specify the range number for the AnchorFolder
-"""
-(1) for Android and Applications (3-209)
-(2) for Bios and Common (210-360)
-(3) for Mobile and MS Logo (361-452)
-(4) for Multimedia and Network (453-617)
-(5) for Option and Preload (618-678)
-(6) for Scenario, UX, and 00_Tools (679-702)
-"""
-start = 3 #plus 1 of the previous run
-end = 17 #this number is not included (ex.209 next run shoud be 210)
+# Define the range number for the AnchorFolder
+start = 6
+end = 10 #this number is not included
 
 # Define numbers to skip
 skip_numbers = {}
@@ -140,6 +116,14 @@ for anchor_id in xpaths_of_anchor_folders:
         EC.presence_of_element_located((By.ID, anchor_id))
         )
         driver.execute_script("arguments[0].click();", anchor_folder)
+        # anchor_folder = WebDriverWait(driver, 10).until(
+        # EC.presence_of_element_located((By.CLASS_NAME, 'your-inactive-class'))
+        # )
+        
+        # anchor_folder = WebDriverWait(driver, 10).until(
+        # EC.element_to_be_clickable((By.ID, anchor_id)))
+        # ActionChains(driver).move_to_element(anchor_folder).perform()
+        # anchor_folder.click()
 
         # Get the number of test case rows present
         row_elements = driver.find_elements(By.XPATH, '//*[@id="caseList"]/tbody/tr')
@@ -167,6 +151,7 @@ for anchor_id in xpaths_of_anchor_folders:
                     try:
                         element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, xpath)))
                         value = element.get_attribute('value') if element else 'NULL'
+                        #print(f"Retrieved value from {xpath}: '{value}'")
                         return value
                     except Exception:
                         print(f"Could not retrieve value from {xpath}: Returning 'NULL'")
@@ -176,6 +161,7 @@ for anchor_id in xpaths_of_anchor_folders:
                     try:
                         element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, xpath)))
                         text = element.text.strip() if element else 'NULL'
+                        #print(f"Retrieved text from {xpath}: '{text}'")
                         return text
                     except Exception:
                         print(f"Could not retrieve text from {xpath}: Returning 'NULL'")
@@ -183,16 +169,20 @@ for anchor_id in xpaths_of_anchor_folders:
                     
                 def get_option_values(select_xpath):
                     try:
+                        # Wait for the select element to be visible
                         select_element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, select_xpath)))
+        
                         # Find all option elements within the select element
                         option_elements = select_element.find_elements(By.TAG_NAME, "option")
+
                         # Retrieve the value of each option
                         #option_values = [option.get_attribute('value') for option in option_elements]
                         option_values = [option.text for option in option_elements]
+
+                        # return option_values if option_values else ['NULL']
                         return ', '.join(option_values) if option_values else 'NULL'
                     except Exception as e:
-                        # print(f"Could not retrieve option values from {select_xpath}: {e}")
-                        print(f"Could not retrieve option values from {select_xpath}")
+                        print(f"Could not retrieve option values from {select_xpath}: {e}")
                         return 'NULL'
                     
                 # Collect data
@@ -245,26 +235,23 @@ for anchor_id in xpaths_of_anchor_folders:
                 driver.back()
 
             except Exception as e:
-                # print(f"Could not click the test case element with XPath {test_case_xpath}: {e}")
-                print(f"Could not click the test case element with XPath {test_case_xpath}")
+                print(f"Could not click the test case element with XPath {test_case_xpath}: {e}")
                 continue
 
         # Concatenate the temporary DataFrame to the main DataFrame
         df = pd.concat([df, temp_df], ignore_index=True)
-        # print(f"Processed anchor folder '{anchor_id}' with {num_rows} test case(s).")
+        #print(f"Processed anchor folder '{anchor_id}' with {num_rows} test case(s).")
 
     except Exception as e:
-        # print(f"Could not click the anchor folder with XPath {anchor_id}: {e}")
-        print(f"Could not click the anchor folder with XPath {anchor_id}")
+        print(f"Could not click the anchor folder with XPath {anchor_id}: {e}")
+        # driver.execute_script("arguments[0].click();", anchor_folder)
         continue
-
-end_time_scriptrun = time.time()
 
 # Display or save the DataFrame
 print(df)
 
 # Save to a CSV file
-file_path = 'TC_TDMS_data.csv'
+file_path = 'output.csv'
 #df.to_csv('output.csv', index=False)
 
 # Check if the file already exists
@@ -278,10 +265,3 @@ else:
 # Close the driver when done
 time.sleep(5)
 driver.quit()
-
-# Calculate the elapsed time
-elapsed_time_scriptrun = end_time_scriptrun - start_time_scriptrun
-print("--------------------------------")
-print(f"Code started at: {time.ctime(start_time_scriptrun)}")
-print(f"Code ended at: {time.ctime(end_time_scriptrun)}")
-print(f"Total elapsed time: {elapsed_time_scriptrun:.2f} seconds")
