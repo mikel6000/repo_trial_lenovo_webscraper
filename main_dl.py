@@ -64,7 +64,7 @@ WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'menu_system_
 (6) for Scenario, UX, and 00_Tools (?-702)
 """
 start_num = 3
-end_num = 7
+end_num = 209
 
 # Loop through the specified range to expand/dropdown
 for i in range(start_num, end_num + 1):
@@ -89,8 +89,8 @@ for i in range(start_num, end_num + 1):
 (5) for Option and Preload (618-678)
 (6) for Scenario, UX, and 00_Tools (679-702)
 """
-start = 3 #plus 1 of the previous run
-end = 7 #this number is not included
+start = 109 #plus 1 of the previous run
+end = 209 #this number is not included continue to anchor109
 
 # Define numbers to skip
 skip_numbers = {}
@@ -127,10 +127,16 @@ for anchor_id in xpaths_of_anchor_folders:
                 ActionChains(driver).move_to_element(test_case_element).perform()
                 test_case_element.click()
 
+                # Get the number of attachement
+                attachment_elem = driver.find_elements(By.CLASS_NAME, 'attachment')
+                num_attachments = len(attachment_elem)
+
+                print(f"Processing '{num_attachments}' attachment(s).")
+
                 # Click to download the attachments
                 attachment_element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'attachment')))
                 attachment_element.click()
-                time.sleep(5)
+                time.sleep(3)
                 pyautogui.press('enter')
                 time.sleep(15)
                 print("Download complete, proceeding to the next test case.")
