@@ -29,7 +29,7 @@ chrome_options.add_argument('--incognito')
 # chrome_options.add_argument('--disable-software-rasterizer')
 
 # Initialize the WebDriver
-driver_path = 'C:/Users/michaeljohn.roguel/Documents/GitHub/repo_trial_lenovo_webscraper/chromedriver.exe'
+driver_path = 'C:/Users/Development 2/Documents/GitHub/repo_trial_lenovo_webscraper/chromedriver.exe'
 service = Service(executable_path=driver_path)
 driver = webdriver.Chrome(service=service, options=chrome_options)
 # driver.maximize_window()
@@ -54,7 +54,7 @@ EC.element_to_be_clickable((By.ID, 'menu_system_test'))
 (6) for Scenario, UX, and 00_Tools (?-702)
 """
 start_num = 3
-end_num = 16
+end_num = 9
 
 # Define numbers to skip
 skip_numbers_plus = {}
@@ -121,7 +121,7 @@ for i in range(start_num, end_num + 1):
 (6) for Scenario, UX, and 00_Tools (679-702)
 """
 start = 3 #plus 1 of the previous run
-end = 17 #this number is not included (ex.209 next run shoud be 210)
+end = 9 #this number is not included (ex.209 next run shoud be 210)
 
 # Define numbers to skip
 skip_numbers = {}

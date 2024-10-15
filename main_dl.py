@@ -1,4 +1,4 @@
-# Script for collecting data on TDMS website
+# Script for downloading attachments on TDMS website
 # Note: before running this file you need to create variables in the os for the login credentials
 
 from selenium import webdriver
@@ -6,11 +6,13 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import os
 import pandas as pd
+import pyautogui
 
 start_time_scriptrun = time.time()
 
@@ -19,27 +21,27 @@ password = os.getenv('zlen_password')
 
 # Set chrome
 chrome_options = Options()
-download_dir = 'C:/Users/michaeljohn.roguel/Documents/GitHub/repo_trial_lenovo_webscraper/Downloads'
+# download_directory = 'C:/Users/Development 2/Documents/GitHub/repo_trial_lenovo_webscraper/Downloads'
 #chrome_options = webdriver.ChromeOptions()
 
 # Basic options
 chrome_options.add_argument('--incognito')
 chrome_options.add_argument("--unsafely-treat-insecure-origin-as-secure=http://tdms.lenovo.com")
-chrome_options.add_argument("--headless=old")
+# chrome_options.add_argument("--headless=old")
 # chrome_options.add_argument('--no-sandbox')
 # chrome_options.add_argument('--verbose')
 # chrome_options.add_argument('--disable-gpu')
 # chrome_options.add_argument('--disable-software-rasterizer')
-prefs = {
-    "download.default_directory": download_dir,
-    "download.prompt_for_download": False,
-    "download.directory_upgrade": True,
-    "safebrowsing.enabled": True,
-}
-chrome_options.add_experimental_option("prefs", prefs)
+# prefs = {
+#     "download.default_directory": download_directory,
+#     "download.prompt_for_download": False,
+#     "download.directory_upgrade": True,
+#     # "safebrowsing.enabled": True,
+# }
+# chrome_options.add_experimental_option("prefs", prefs)
 
 # Initialize the WebDriver
-driver_path = 'C:/Users/michaeljohn.roguel/Documents/GitHub/repo_trial_lenovo_webscraper/chromedriver.exe'
+driver_path = 'C:/Users/Development 2/Documents/GitHub/repo_trial_lenovo_webscraper/chromedriver.exe'
 service = Service(executable_path=driver_path)
 driver = webdriver.Chrome(service=service, options=chrome_options)
 # driver.maximize_window()
@@ -50,9 +52,7 @@ driver.find_element(By.ID, 'username').send_keys(username)
 driver.find_element(By.ID, 'password').send_keys(password)
 driver.find_element(By.ID, 'loginsub').click()
 driver.refresh()
-WebDriverWait(driver, 10).until(
-EC.element_to_be_clickable((By.ID, 'menu_system_test'))
-).click()
+WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'menu_system_test'))).click()
 
 # Specify the range number for the PlusIcons
 """
@@ -64,7 +64,7 @@ EC.element_to_be_clickable((By.ID, 'menu_system_test'))
 (6) for Scenario, UX, and 00_Tools (?-702)
 """
 start_num = 3
-end_num = 10
+end_num = 7
 
 # Loop through the specified range to expand/dropdown
 for i in range(start_num, end_num + 1):
@@ -90,7 +90,7 @@ for i in range(start_num, end_num + 1):
 (6) for Scenario, UX, and 00_Tools (679-702)
 """
 start = 3 #plus 1 of the previous run
-end = 10 #this number is not included (ex.209 next run shoud be 210)
+end = 7 #this number is not included
 
 # Define numbers to skip
 skip_numbers = {}
@@ -127,9 +127,13 @@ for anchor_id in xpaths_of_anchor_folders:
                 ActionChains(driver).move_to_element(test_case_element).perform()
                 test_case_element.click()
 
-                attachment = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'attachment')))
-                download_url = attachment.click()
-                # driver.execute_script("arguments[0].click();", attachment)
+                # Click to download the attachments
+                attachment_element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'attachment')))
+                attachment_element.click()
+                time.sleep(5)
+                pyautogui.press('enter')
+                time.sleep(15)
+                print("Download complete, proceeding to the next test case.")
 
                 driver.back()
 
