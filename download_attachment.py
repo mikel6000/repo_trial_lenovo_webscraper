@@ -1,3 +1,4 @@
+# only downloads attachments, no folder creation
 # Script for downloading attachments on TDMS website
 # Note: before running this file you need to create variables in the os for the login credentials
 
